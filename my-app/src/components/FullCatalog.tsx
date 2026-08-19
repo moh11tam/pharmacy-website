@@ -45,9 +45,9 @@ export const FullCatalog = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
   return (
     <div className="fixed inset-0 z-[100] bg-[#030705] overflow-y-auto">
       
-      {/* الجزء الثابت (Sticky Header) */}
+      {/* الجزء الثابت (Sticky Header) - لا يتحرك مع الصفحة */}
       <div className="sticky top-0 z-50 bg-[#030705]/95 backdrop-blur-md border-b border-emerald-900/40 p-4 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-black bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent h-8">
             {displayedTitle}
           </h2>
@@ -57,29 +57,39 @@ export const FullCatalog = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
           </button>
         </div>
 
-        {/* حقل البحث المتغير */}
-        <div className="relative max-w-xl mx-auto">
+        {/* العدسة في الجانب وبجانبها العلامة التجارية المتدرجة */}
+        <div className="flex items-center gap-4 justify-start">
           {!isSearchVisible ? (
             <div 
               onClick={() => setIsSearchVisible(true)}
-              className="w-12 h-12 flex items-center justify-center bg-emerald-950/30 border border-emerald-800/50 rounded-full cursor-pointer hover:border-emerald-500 transition mx-auto"
+              className="w-11 h-11 flex items-center justify-center bg-emerald-950/30 border border-emerald-800/50 rounded-full cursor-pointer hover:border-emerald-500 transition shrink-0"
             >
-              <Search className="text-emerald-400 w-6 h-6" />
+              <Search className="text-emerald-400 w-5 h-5" />
             </div>
-          ) : (
+          ) : null}
+
+          {/* العلامة التجارية الشبه صيدلانية بتدرج لوني */}
+          <span className="text-sm font-extrabold bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent tracking-widest uppercase">
+            DERMA-PHARMA
+          </span>
+        </div>
+
+        {/* حقل البحث يظهر أسفل العدسة عند الضغط عليها */}
+        {isSearchVisible && (
+          <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
             <input 
               autoFocus
               type="text"
               placeholder="ابحث عن منتج..."
-              className="w-full bg-[#050C09] border border-emerald-500 rounded-2xl py-3 px-4 text-white placeholder-emerald-800 outline-none transition"
+              className="w-full bg-[#050C09] border border-emerald-500 rounded-2xl py-3 px-4 text-white placeholder-emerald-800 outline-none transition text-sm"
               onChange={(e) => setSearchQuery(e.target.value)}
               onBlur={() => !searchQuery && setIsSearchVisible(false)}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* منطقة المنتجات */}
+      {/* منطقة المنتجات المتحركة تحت الهيدر الثابت */}
       <div className="max-w-6xl mx-auto p-4 sm:p-8">
         {loading ? (
           <div className="text-center text-emerald-500 py-20">جاري التحميل...</div>
