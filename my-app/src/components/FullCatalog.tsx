@@ -1,63 +1,95 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { X, Search, ShoppingBag, Filter } from 'lucide-react';
+import { X, Search, ShoppingBag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export const FullCatalog = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const [products, setProducts] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  
+  // حالة التحكم بحقل البحث
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  
+  // نص العنوان المتحرك
+  const fullTitle = "كافة منتجاتنا في مكان واحد";
+  const [displayedTitle, setDisplayedTitle] = useState("");
 
   useEffect(() => {
-    const fetchAllProducts = async () => {
-      const { data } = await supabase.from('products').select('*');
-      if (data) setProducts(data);
-      setLoading(false);
-    };
-    fetchAllProducts();
-  }, []);
+    if (isOpen) {
+      // جلب المنتجات
+      const fetchProducts = async () => {
+        const { data } = await supabase.from('products').select('*');
+        if (data) setProducts(data);
+        setLoading(false);
+      };
+      fetchProducts();
 
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(search.toLowerCase())
-  );
+      // تأثير الكتابة البطيئة للعنوان
+      let index = 0;
+      setDisplayedTitle("");
+      const timer = setInterval(() => {
+        if (index <= fullTitle.length) {
+          setDisplayedTitle(fullTitle.slice(0, index));
+          index++;
+        } else {
+          clearInterval(timer);
+        }
+      }, 100);
+      return () => clearInterval(timer);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#030705]/95 backdrop-blur-xl overflow-y-auto p-4 sm:p-8 animate-in zoom-in-95 duration-300">
-      <div className="max-w-6xl mx-auto">
-        {/* هيدر الصفحة */}
-        <div className="flex justify-between items-center mb-8 sticky top-0 bg-[#030705]/80 backdrop-blur-md py-4 border-b border-emerald-900/30">
-          <h2 className="text-2xl font-bold text-white">متجرنا المتكامل</h2>
-          <button onClick={onClose} className="p-2 bg-emerald-950/50 rounded-full hover:bg-emerald-900 border border-emerald-800">
-            <X className="text-emerald-400" />
+    <div className="fixed inset-0 z-[100] bg-[#030705] overflow-y-auto">
+      
+      {/* الجزء الثابت (Sticky Header) */}
+      <div className="sticky top-0 z-50 bg-[#030705]/95 backdrop-blur-md border-b border-emerald-900/40 p-4 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-black bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent h-8">
+            {displayedTitle}
+          </h2>
+          
+          <button onClick={onClose} className="p-2 bg-emerald-950/50 rounded-full border border-emerald-800 text-emerald-400 hover:text-white transition">
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        {/* شريط البحث */}
-        <div className="relative mb-10 max-w-xl mx-auto">
-          <Search className="absolute right-4 top-3.5 text-emerald-600" />
-          <input 
-            type="text"
-            placeholder="ابحث عن منتجك المفضل..."
-            className="w-full bg-[#050C09] border border-emerald-900/50 rounded-2xl py-3 pr-12 pl-4 text-white placeholder-emerald-800 focus:border-emerald-500 outline-none transition"
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        {/* حقل البحث المتغير */}
+        <div className="relative max-w-xl mx-auto">
+          {!isSearchVisible ? (
+            <div 
+              onClick={() => setIsSearchVisible(true)}
+              className="w-12 h-12 flex items-center justify-center bg-emerald-950/30 border border-emerald-800/50 rounded-full cursor-pointer hover:border-emerald-500 transition mx-auto"
+            >
+              <Search className="text-emerald-400 w-6 h-6" />
+            </div>
+          ) : (
+            <input 
+              autoFocus
+              type="text"
+              placeholder="ابحث عن منتج..."
+              className="w-full bg-[#050C09] border border-emerald-500 rounded-2xl py-3 px-4 text-white placeholder-emerald-800 outline-none transition"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onBlur={() => !searchQuery && setIsSearchVisible(false)}
+            />
+          )}
         </div>
+      </div>
 
-        {/* شبكة المنتجات */}
+      {/* منطقة المنتجات */}
+      <div className="max-w-6xl mx-auto p-4 sm:p-8">
         {loading ? (
-          <div className="text-center text-emerald-500 py-20">جاري تحميل المنتجات...</div>
+          <div className="text-center text-emerald-500 py-20">جاري التحميل...</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {filteredProducts.map((p) => (
-              <div key={p.id} className="bg-[#050C09] border border-emerald-900/40 rounded-2xl p-4 hover:border-emerald-500 transition group">
+            {products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase())).map((p) => (
+              <div key={p.id} className="bg-[#050C09] border border-emerald-900/40 rounded-2xl p-4 hover:border-emerald-500 transition">
                 <img src={p.image_url} alt={p.title} className="w-full h-40 object-cover rounded-xl mb-4" />
                 <h3 className="text-white font-bold mb-1">{p.title}</h3>
                 <p className="text-emerald-400 font-bold mb-3">{p.price}</p>
-                <button className="w-full py-2 bg-emerald-950/50 border border-emerald-900 text-emerald-300 rounded-lg group-hover:bg-emerald-500 group-hover:text-black transition font-bold">
-                  طلب الآن
-                </button>
               </div>
             ))}
           </div>
