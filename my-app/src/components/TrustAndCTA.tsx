@@ -1,7 +1,11 @@
 import React from 'react';
 import { CheckCircle2, MapPin } from 'lucide-react';
 
-export const TrustAndCTA = () => {
+interface TrustAndCTAProps {
+  onOpenCatalog: () => void;
+}
+
+export const TrustAndCTA = ({ onOpenCatalog }: TrustAndCTAProps) => {
   const trustPoints = ["منتجات موثوقة 100%", "خدمة احترافية ممتازة", "طلب سهل وسريع", "دعم ومساعدة متواصلة"];
 
   return (
@@ -37,7 +41,10 @@ export const TrustAndCTA = () => {
           </div>
 
           <div>
-            <button className="px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 text-lg">
+            <button 
+              onClick={onOpenCatalog}
+              className="px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 text-lg cursor-pointer"
+            >
               ابدأ الآن
             </button>
           </div>

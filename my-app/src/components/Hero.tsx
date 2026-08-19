@@ -1,7 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 
-export const Hero = () => {
+interface HeroProps {
+  onOpenCatalog: () => void;
+}
+
+export const Hero = ({ onOpenCatalog }: HeroProps) => {
+  // النص الأصلي كما هو
   const fullText = "صحتك أولويتنا... والعناية بك تبدأ من هنا.";
   const [displayText, setDisplayText] = useState("");
 
@@ -14,7 +19,7 @@ export const Hero = () => {
       } else {
         clearInterval(interval);
       }
-    }, 90); // السرعة بالعرض البطيء
+    }, 90); 
 
     return () => clearInterval(interval);
   }, []);
@@ -39,9 +44,13 @@ export const Hero = () => {
       </p>
 
       <div className="flex justify-center gap-4">
-        <a href="#categories" className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-2xl transition shadow-xl shadow-emerald-500/20">
+        {/* الزر الآن مربوط بفتح النافذة */}
+        <button 
+          onClick={onOpenCatalog}
+          className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-2xl transition shadow-xl shadow-emerald-500/20 cursor-pointer"
+        >
           تصفح منتجاتنا
-        </a>
+        </button>
         <a href="#contact" className="px-8 py-4 bg-emerald-950/60 border border-emerald-800/50 text-emerald-300 hover:bg-emerald-900/60 font-semibold rounded-2xl transition">
           تواصل معنا
         </a>
